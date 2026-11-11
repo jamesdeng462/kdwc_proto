@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kuza Elimu: Clickable Prototype</title>
+<style>
+:root{--bg:#f6f3ec;--fg:#12201c;--mut:#5a6b64;--card:#fff;--line:#d9d4c7;--ac:#2f7d6b;--am:#9a5b0c;--acfg:#fff;--ok:#1f7a4d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a17;--fg:#f1ede3;--mut:#9fb3ab;--card:#1a2a25;--line:#2c443c;--ac:#4fb59d;--am:#e8a33d;--acfg:#0f1a17;--ok:#5ed39a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1a17;--fg:#f1ede3;--mut:#9fb3ab;--card:#1a2a25;--line:#2c443c;--ac:#4fb59d;--am:#e8a33d;--acfg:#0f1a17;--ok:#5ed39a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.45}
+.wrap{max-width:1000px;margin:0 auto;padding:20px;display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:32px;align-items:start}
+@media(max-width:780px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.phone{border:8px solid var(--fg);border-radius:36px;background:var(--card);min-height:640px;display:flex;flex-direction:column;overflow:hidden;max-width:360px;width:100%;margin:0 auto}
+.bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--ac);color:var(--acfg);font-weight:700;font-size:14px}
+.off{background:var(--am);color:var(--acfg);font-size:12px;padding:6px 16px;font-weight:600}
+.scr{padding:18px 16px;display:flex;flex-direction:column;gap:12px;flex:1}
+h2{font-size:20px;margin:0}h3{margin:0 0 6px;font-size:17px}
+.m{color:var(--mut);font-size:14px;margin:0}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px}
+.b{background:var(--ac);color:var(--acfg);border:0;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;width:100%}
+.b.o{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.b:disabled{opacity:.45;cursor:default}
+input,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);font:inherit}
+ul{margin:0;padding-left:18px;font-size:14px}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:2px 8px;margin:2px 4px 2px 0;color:var(--mut)}
+.ok{color:var(--ok);font-weight:700}
+.st{display:flex;gap:6px;font-size:12px}.st div{flex:1;padding:8px 4px;text-align:center;border-radius:8px;border:1px solid var(--line);color:var(--mut)}.st .on{background:var(--ac);color:var(--acfg);border-color:var(--ac);font-weight:700}
+.nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.nav button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:99px;padding:6px 12px;font-size:13px;cursor:pointer}
+.nav button.on{background:var(--ac);color:var(--acfg);border-color:var(--ac)}
+.in{border-left:4px solid var(--am);padding:8px 14px;background:var(--card);border-radius:0 10px 10px 0;margin-top:14px}
+.in b{color:var(--am)}.note{font-size:12px;color:var(--mut)}
+table{border-collapse:collapse;width:100%;font-size:12px}td,th{border:1px solid var(--line);padding:4px 6px;text-align:left}
+.qr{color:var(--fg);background:#fff;padding:6px;border-radius:8px;display:inline-block}
+.qr svg{color:#12201c;display:block}
+</style></head><body>
+<div class="wrap"><div><div class="nav" id="nav"></div><div class="phone" id="ph"></div></div><div id="ann"></div></div>
+<script>
+const S={i:0,off:false,saved:false,att:false,rev:0,rub:false,chk:-1,toast:""};
+const N=[
+["Join","Free to join, no national ID, no upfront payment. A phone number is enough.","Zawadi’s deal-breakers (Needs Analysis): no ID as a mandatory step and no payment to start."],
+["Pathway","The learner sees the skill, the rubric and the recognition anchor before spending any time.","Employers told me a credential must rest on a graded result, not “completed the course.”"],
+["Learn","A 38 KB lesson saved to the phone. Try “Simulate no signal”: learning and progress still work.","Camp hub operator: outages are the daily norm, and anything that needs constant connection is dead on arrival."],
+["Project","Instead of a quiz, the learner completes a real task and explains her decisions.","Public skill demonstrations replace self-reported completion (Strategic Wireframe, Module 5)."],
+["Review","An assessor scores the work against a published rubric, then a partner or published standard co-signs.","NGO coordinator: no way to show outcomes. Every decision here leaves a record."],
+["Credential","A credential with evidence, status and a QR code. The learner controls who sees it.","Zawadi finished training and had “no certificate an employer would trust.”"],
+["Employer","An employer scans the QR code and sees issuer, evidence and status without calling anyone.","82% of East African employers cannot verify candidates from camps."]];
+const qr=()=>{let s=7,r=()=>(s=s*16807%2147483647)/2147483647,g="";for(let y=0;y<21;y++)for(let x=0;x<21;x++){const f=(x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13);let on;if(f){const a=x>13?x-14:x,c=y>13?y-14:y;on=a==0||a==6||c==0||c==6||(a>=2&&a<=4&&c>=2&&c<=4)}else on=r()>.5;if(on)g+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}return`<svg viewBox="0 0 21 21" width="120" height="120" fill="currentColor" shape-rendering="crispEdges">${g}</svg>`};
+const screens=[
+()=>`<h2>Start learning, free</h2><p class="m">Join with your phone number. Learn on a shared, low-end phone.</p><label class="m">Phone number</label><input inputmode="tel" placeholder="+254 7XX XXX XXX"><ul><li>No national ID needed</li><li>No upfront fee</li><li>Works offline</li></ul><button class="b" data-g="1">Continue</button>`,
+()=>`<h2>Choose a verifiable pathway</h2><div class="card"><h3>Digital Work Foundations</h3><span class="tag">spreadsheet analysis</span><span class="tag">data cleaning</span><span class="tag">clear communication</span><p class="m"><b>Recognition anchor:</b> partner or published skill standard, shown before enrolment. Names appear only after formal agreement.</p><ol style="font-size:14px;padding-left:18px;margin:8px 0"><li>Guided practice</li><li>Real mini-project</li><li>Meet the rubric</li><li>Assessor and partner sign-off</li></ol>${S.rub?`<table><tr><th>Rubric</th><th>Pass when</th></tr><tr><td>Data cleaning</td><td>Duplicates and errors fixed</td></tr><tr><td>Analysis</td><td>Totals and chart correct</td></tr><tr><td>Communication</td><td>Decisions explained clearly</td></tr></table>`:""}</div><button class="b o" data-a="rub">${S.rub?"Hide":"View"} rubric</button><button class="b" data-g="2">Start learning</button>`,
+()=>`<h2>Lesson: cleaning a sales sheet</h2><p class="m">Size: 38 KB · 5 minutes</p><div class="card">Step 1: Remove duplicate rows.<br>Step 2: Fix wrong entries (for example “Nairobi ” and “nairobi” are the same place).<br>Step 3: Add a total row.</div><button class="b o" data-a="save">${S.saved?"Saved on this phone ✓":"Save for offline"}</button><button class="b o" data-a="off">${S.off?"Back online (syncs now)":"Simulate no signal"}</button><p class="note">${S.off?"Offline: progress is stored on the phone and syncs when a connection returns.":"Online."}</p><button class="b" data-g="3">Next: real project</button>`,
+()=>`<h2>Real project</h2><div class="card"><b>Task:</b> clean the sample sheet and report the total for each region.<table><tr><th>Region</th><th>Sales</th></tr><tr><td>Turkana</td><td>1,200</td></tr><tr><td>turkana </td><td>1,200</td></tr><tr><td>Kakuma</td><td>800</td></tr></table></div><textarea rows="3" placeholder="Explain what you changed and why"></textarea><button class="b o" data-a="att">${S.att?"sales_clean.xlsx attached ✓":"Attach your work"}</button><button class="b" data-g="4" ${S.att?"":"disabled"}>Submit for review</button>`,
+()=>`<h2>Review status</h2><div class="st"><div class="on">Submitted</div><div class="${S.rev>=1?"on":""}">Assessor</div><div class="${S.rev>=2?"on":""}">Co-sign</div></div>${S.rev>=1?`<div class="card"><b>Rubric result</b><br>Data cleaning: pass ✓<br>Analysis: pass ✓<br>Communication: pass ✓<br><span class="note">Feedback and review record retained.</span></div>`:`<p class="m">Waiting for an assessor to score your work against the rubric.</p>`}${S.rev>=2?`<div class="card ok">Co-signed by [partner or published standard]</div>`:""}${S.rev<2?`<button class="b o" data-a="rev">Simulate ${S.rev?"co-sign":"assessor review"}</button>`:`<button class="b" data-g="5">View my credential</button>`}`,
+()=>`<h2>Your credential</h2><div class="card"><h3>Digital Work Foundations: Data Cleaning</h3><div class="qr">${qr()}</div><p class="note">Sample QR for demonstration</p><p style="margin:4px 0;font-size:14px">ID: KZ-2026-0142 · Status: <span class="ok">Active</span><br>Evidence: assessed project<br>Co-signer: [partner or standard]</p></div><button class="b o" data-a="share">Share verification link</button><p class="note">${S.toast}</p><button class="b" data-g="6">See what an employer sees</button>`,
+()=>{const t=["0–5 s: scan the QR code","5–15 s: registry confirms issuer, ID and status","15–25 s: employer checks evidence and standard","25–30 s: outcome recorded, no phone call"];return`<h2>Credential registry</h2><div class="card"><div class="ok" style="font-size:18px">VERIFICATION RESULT: VALID ✓</div><p style="font-size:14px;margin:6px 0">Credential: Digital Work Foundations, Data Cleaning<br>Issued by: Kuza Elimu · Anchor: [partner or standard]<br>Evidence: view assessed project · Status: Active<br>ID: KZ-2026-0142</p></div><button class="b o" data-a="chk">Run the 30-second check</button>${t.map((x,k)=>`<div class="note" style="${S.chk>=k?"color:var(--ok);font-weight:700":""}">${S.chk>=k?"✓ ":"○ "}${x}</div>`).join("")}<button class="b o" data-g="0">Restart prototype</button>`}];
+function draw(){const n=S.i;ph.innerHTML=`<div class="bar"><span>Kuza Elimu</span><span>${n+1} / 7</span></div>${S.off?'<div class="off">No signal. Everything still works.</div>':""}<div class="scr">${screens[n]()}</div>`;
+nav.innerHTML=N.map((x,k)=>`<button data-g="${k}" class="${k==n?"on":""}">${k+1} ${x[0]}</button>`).join("");
+ann.innerHTML=`<h1 style="margin:0 0 4px;font-size:24px">Kuza Elimu: clickable prototype</h1><p class="m">From learning to a credential an employer can verify. Sample data throughout. Placeholders in [brackets] appear only after a partner agreement is signed.</p><h3 style="margin-top:20px">Screen ${n+1}: ${N[n][0]}</h3><p>${N[n][1]}</p><div class="in"><b>Insight behind this screen</b><p style="margin:4px 0 0">${N[n][2]}</p></div>`}
+const ph=document.getElementById("ph"),nav=document.getElementById("nav"),ann=document.getElementById("ann");
+document.addEventListener("click",e=>{const el=e.target.closest("[data-g],[data-a]");if(!el)return;if(el.dataset.g!==undefined){S.i=+el.dataset.g;if(S.i==0){Object.assign(S,{off:false,saved:false,att:false,rev:0,rub:false,chk:-1,toast:""})}}else{const a=el.dataset.a;if(a=="rub")S.rub=!S.rub;if(a=="save")S.saved=true;if(a=="off")S.off=!S.off;if(a=="att")S.att=true;if(a=="rev")S.rev++;if(a=="share")S.toast="Link ready to send by WhatsApp or SMS (demo).";if(a=="chk"){S.chk=-1;[0,1,2,3].forEach(k=>setTimeout(()=>{S.chk=k;draw()},k*700+200))}}draw()});
+draw();
+</script></body></html>
